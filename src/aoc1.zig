@@ -8,50 +8,22 @@ const std = @import("std");
 const debug = std.debug;
 const fmt = std.fmt;
 
-fn solution1(input: []const u8) !i32 {
+test "aoc1 -- pt. 1" {
+    const input_file = @embedFile("../input/aoc1.txt");
     var result: i32 = 0;
     var start: usize = 0;
 
-    for (input) |char, idx| {
+    for (input_file[0..]) |char, idx| {
         if (char == '\n') {
-            result += try fmt.parseInt(i32, input[start..idx], 10);
+            result += try fmt.parseInt(i32, input_file[start..idx], 10);
             start = idx + 1;
         }
     }
-    return result;
-}
-
-test "aoc1 -- pt. 1" {
-    const input_file = @embedFile("../input/aoc1.txt");
-    debug.warn(" {} ", solution1(input_file[0..]));
+    debug.warn(" {} ", result);
 }
 
 fn solution2(allocator: *std.mem.Allocator, input: []const u8) !i32 {
-    const HashMap = std.AutoHashMap(i32, usize);
-    var freq = HashMap.init(allocator);
-    defer freq.deinit();
-
-    var result: i32 = 0;
-
-    while (true) {
-        var start: usize = 0;
-        
-        for (input) |char, idx| {
-            if (char == '\n') {
-                result += try fmt.parseInt(i32, input[start..idx], 10);
-                start = idx + 1;
-
-                if (freq.get(result)) |_| {
-                    return result;
-                } else {
-                    _ = try freq.put(result, 0);
-                }
-            }
-        }
-
-    }
-
-    // return result;
+    
 }
 
 test "aoc1 -- pt. 2" {
@@ -60,5 +32,24 @@ test "aoc1 -- pt. 2" {
     var direct_allocator = std.heap.DirectAllocator.init();
     defer direct_allocator.deinit();
 
-    debug.warn(" {} ", try solution2(&direct_allocator.allocator, input_file[0..]));
+    const HashMap = std.AutoHashMap(i32, void);
+    var freq = HashMap.init(&direct_allocator.allocator);
+    defer freq.deinit();
+
+    var result: i32 = 0;
+
+    loop: while (true) {
+        var start: usize = 0;
+        for (input_file[0..]) |char, idx| {
+            if (char == '\n') {
+                result += try fmt.parseInt(i32, input_file[start..idx], 10);
+                start = idx + 1;
+                if (try freq.put(result, {})) |_| {
+                    debug.warn(" {} ", result);
+                    break :loop;
+                }
+            }
+        }
+
+    }
 }
