@@ -6,7 +6,6 @@
 
 const std = @import("std");
 const debug = std.debug;
-const fmt = std.fmt;
 
 pub fn countRepeats(input: []const u8, twos: *usize, threes: *usize) void {
     var table = []usize{0} ** 26;
